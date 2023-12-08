@@ -14,13 +14,13 @@ namespace SpectraReferenceDB
         [STAThread]
         static void Main()
         {
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Form1());
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainWindow());
 
-            ReferenceFile file = ReferenceFile.FromSpc(@"C:\Users\marti\source\repos\SpectraReferenceDB\SpectraReferenceDB\data\Cyclohexane_beforeCalib_max_5x5s_50mW_210518.spc");
+            //Reference file = Reference.FromSpc(@"C:\Users\marti\source\repos\SpectraReferenceDB\SpectraReferenceDB\data\Cyclohexane_230220_Cal_check.spc");
 
-            Console.WriteLine(file.ToString());
+            //Console.WriteLine(file.ToString());
         }
     }
 }

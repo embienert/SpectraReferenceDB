@@ -6,36 +6,40 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpectraReferenceDB {
-    internal class SPCFILE {
-        int fileVersion;
-        int experimentTypeCode;
-        int numDataPoints;  // Unimportant for XYXY format
-        int numSubfiles;
-        int xUnitsTypeCode;
-        int yUnitsTypeCode;
-        int zUnitsTypeCode;
-        int wUnitsTypeCode;
-        int postingDisposition;
-        DateTime date;
-        string resolutionDescription;
-        string sourceInstrumentDescription;
-        short pearkPointNumber;
-        byte[] spare;
-        string memo;
-        string xAxisLabel;
-        string yAxisLabel;
-        string zAxisLabel;
-        int processingCode;
-        int calibrationLevel;
-        string methodFile;
-        float zSubfileIncrement;
-        int numWPlanes;
-        float wPlaneIncrement;
+    public class SPCFile {
+        //const int LOG_HEADER_SIZE = 64;
 
-        double[][] xData;
-        double[][] yData;
+        public int fileVersion;
+        public int experimentTypeCode;
+        public int numDataPoints;  // Unimportant for XYXY format
+        public int numSubfiles;
+        public int xUnitsTypeCode;
+        public int yUnitsTypeCode;
+        public int zUnitsTypeCode;
+        public int wUnitsTypeCode;
+        public int postingDisposition;
+        public DateTime date;
+        public string resolutionDescription;
+        public string sourceInstrumentDescription;
+        public short peakPointNumber;
+        public byte[] spare;
+        public string memo;
+        public string xAxisLabel;
+        public string yAxisLabel;
+        public string zAxisLabel;
+        public int processingCode;
+        public int calibrationLevel;
+        public string methodFile;
+        public float zSubfileIncrement;
+        public int numWPlanes;
+        public float wPlaneIncrement;
 
-        public SPCFILE(string filePath) {
+        public readonly double[][] xData;
+        public readonly double[][] yData;
+
+        public Dictionary<string, string> logData;
+
+        public SPCFile(string filePath) {
 
 
             using (FileStream stream = File.OpenRead(filePath)) {
@@ -43,34 +47,34 @@ namespace SpectraReferenceDB {
                     // Main header
                     byte flags = reader.ReadByte();
                     int spcFileVersion = (int)reader.ReadByte();
-                    int experimentTypeCode = (int)reader.ReadByte();
+                    experimentTypeCode = (int)reader.ReadByte();
                     int exponent = (int)reader.ReadByte();
-                    int numDataPoints = reader.ReadInt32();
+                    numDataPoints = reader.ReadInt32();
                     double firstX = reader.ReadDouble();
                     double lastX = reader.ReadDouble();
-                    int numSubfiles = reader.ReadInt32();
-                    int xUnitsTypeCode = (int)reader.ReadByte();
-                    int yUnitsTypeCode = (int)reader.ReadByte();
-                    int zUnitsTypeCode = (int)reader.ReadByte();
-                    int postingDisposition = (int)reader.ReadByte();
+                    numSubfiles = reader.ReadInt32();
+                    xUnitsTypeCode = (int)reader.ReadByte();
+                    yUnitsTypeCode = (int)reader.ReadByte();
+                    zUnitsTypeCode = (int)reader.ReadByte();
+                    postingDisposition = (int)reader.ReadByte();
                     int compressedDate = reader.ReadInt32();
-                    string resolutionDescription = Encoding.UTF8.GetString(reader.ReadBytes(9));
-                    string sourceInstrumentDescription = Encoding.UTF8.GetString(reader.ReadBytes(9));
-                    short peakPointNumber = reader.ReadInt16();
-                    byte[] spare = reader.ReadBytes(8 * 4);  // What datatype? (Source reads as 8 floats)
-                    string memo = Encoding.UTF8.GetString(reader.ReadBytes(130));
+                    resolutionDescription = Encoding.UTF8.GetString(reader.ReadBytes(9));
+                    sourceInstrumentDescription = Encoding.UTF8.GetString(reader.ReadBytes(9));
+                    peakPointNumber = reader.ReadInt16();
+                    spare = reader.ReadBytes(8 * 4);  // What datatype? (Source reads as 8 floats)
+                    memo = Encoding.UTF8.GetString(reader.ReadBytes(130));
                     string customAxisLabels = Encoding.UTF8.GetString(reader.ReadBytes(30));
                     int byteOffsetToLogBlock = reader.ReadInt32();
                     int fileModificationFlag = reader.ReadInt32();
-                    int processingCode = (int)reader.ReadByte();
-                    int calibrationLevel = (int)reader.ReadByte();
+                    processingCode = (int)reader.ReadByte();
+                    calibrationLevel = (int)reader.ReadByte();
                     short subMethodSampleInjectorNumber = reader.ReadInt16();
                     float dataMultiplierConcentration = reader.ReadSingle();
-                    string methodFile = Encoding.UTF8.GetString(reader.ReadBytes(48));
-                    float zSubfileIncrement = reader.ReadSingle();
-                    int numWPlanes = reader.ReadInt32();
-                    float wPlaneIncrement = reader.ReadSingle();
-                    int wAxisUnitsCode = (int)reader.ReadByte();
+                    methodFile = Encoding.UTF8.GetString(reader.ReadBytes(48));
+                    zSubfileIncrement = reader.ReadSingle();
+                    numWPlanes = reader.ReadInt32();
+                    wPlaneIncrement = reader.ReadSingle();
+                    wUnitsTypeCode = (int)reader.ReadByte();
                     byte[] reserved = reader.ReadBytes(187);
 
 
@@ -94,7 +98,9 @@ namespace SpectraReferenceDB {
                     int day = (compressedDate >> 11) % ((int)Math.Pow(2, 5));
                     int hour = (compressedDate >> 6) % ((int)Math.Pow(2, 5));
                     int minute = compressedDate % ((int)Math.Pow(2, 6));
-                    DateTime date = new DateTime(year, month, day, hour, minute, 0);
+                    date = new DateTime(year, month, day, hour, minute, 0);
+
+                    // TODO: Process axis labels
 
 
                     /*
@@ -143,7 +149,7 @@ namespace SpectraReferenceDB {
                     float subfileWAxis = reader.ReadSingle();
                     byte[] subfileReserved = reader.ReadBytes(4);
 
-
+                    yData = new double[numSubfiles][];
                     for (int subfile = 0; subfile < numSubfiles; subfile++) {
                         if (txyxys) {
                             // Subfiles also contain x-values
@@ -184,7 +190,38 @@ namespace SpectraReferenceDB {
                         yData[subfile] = yVals;
                     }
 
-                    // TODO: Load log data
+                    // Load log data
+                    logData = new Dictionary<string, string>();
+                    if (byteOffsetToLogBlock != 0) {  // If offset is 0, there is no log block
+                        reader.BaseStream.Seek(byteOffsetToLogBlock, SeekOrigin.Begin);  // Set current position in file to start of log block
+
+                        // Read log header
+                        int logSizeD = reader.ReadInt32();
+                        int logSizeM = reader.ReadInt32();
+                        int logTxtOffset = reader.ReadInt32();
+                        int logBins = reader.ReadInt32();
+                        int logDsks = reader.ReadInt32();
+                        string logSpare = Encoding.UTF8.GetString(reader.ReadBytes(44));
+ 
+                        reader.BaseStream.Seek(byteOffsetToLogBlock + logTxtOffset, SeekOrigin.Begin);  // Set current position in file to start of log content
+
+                        // Read log content
+                        string logContent = Encoding.UTF8.GetString(reader.ReadBytes(logSizeD)).Replace("\r", "");
+
+                        // Process log content into a dictionary
+                        string[] logRows = logContent.Split('\n');
+
+                        foreach (string row in logRows) {
+                            if (row.Contains('=')) {
+                                string[] rowSplit = row.Split('=');
+                                string key = rowSplit[0];
+                                string value = rowSplit[1];
+
+                                logData[key] = value;
+                            }
+                        }
+                    }
+
 
                     // TODO: Construct meta
                     Console.WriteLine(date.ToString());
