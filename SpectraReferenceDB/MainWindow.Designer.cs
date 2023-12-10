@@ -69,7 +69,7 @@
             this.EReferenceRemarks = new System.Windows.Forms.RichTextBox();
             this.EReferenceFile = new System.Windows.Forms.TextBox();
             this.BReferenceNew = new System.Windows.Forms.Button();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.PReferenceEditControlContainer = new System.Windows.Forms.TableLayoutPanel();
             this.CBReferenceEdit = new System.Windows.Forms.CheckBox();
             this.BReferenceEdit = new System.Windows.Forms.Button();
             this.EReferenceDate = new System.Windows.Forms.DateTimePicker();
@@ -85,7 +85,7 @@
             this.tableLayoutPanel2.SuspendLayout();
             this.PReferenceMetaContainer.SuspendLayout();
             this.PReferenceRemarksContainer.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
+            this.PReferenceEditControlContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChartReference)).BeginInit();
             this.SuspendLayout();
             // 
@@ -219,19 +219,23 @@
             this.TReferences.GridColor = System.Drawing.SystemColors.ControlLight;
             this.TReferences.Location = new System.Drawing.Point(0, 0);
             this.TReferences.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.TReferences.MultiSelect = false;
             this.TReferences.Name = "TReferences";
             this.TReferences.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.TReferences.RowHeadersVisible = false;
             this.TReferences.RowTemplate.Height = 25;
             this.TReferences.RowTemplate.ReadOnly = true;
             this.TReferences.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.TReferences.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.TReferences.ShowRowErrors = false;
             this.TReferences.Size = new System.Drawing.Size(372, 451);
             this.TReferences.TabIndex = 0;
+            this.TReferences.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.TReferences_CellDoubleClick);
             this.TReferences.Resize += new System.EventHandler(this.TReferences_Resize);
             // 
             // id
             // 
-            this.id.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.id.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.id.HeaderText = "#";
             this.id.Name = "id";
             this.id.ToolTipText = "Reference ID in Database";
@@ -239,28 +243,28 @@
             // 
             // name
             // 
-            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.name.HeaderText = "Name";
             this.name.Name = "name";
             this.name.Width = 61;
             // 
             // date
             // 
-            this.date.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.date.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.date.HeaderText = "Measurement Date";
             this.date.Name = "date";
             this.date.Width = 118;
             // 
             // operatedBy
             // 
-            this.operatedBy.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.operatedBy.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.operatedBy.HeaderText = "Operator";
             this.operatedBy.Name = "operatedBy";
             this.operatedBy.Width = 79;
             // 
             // insertedBy
             // 
-            this.insertedBy.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.insertedBy.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.insertedBy.HeaderText = "Inserted By";
             this.insertedBy.Name = "insertedBy";
             this.insertedBy.Width = 81;
@@ -321,7 +325,7 @@
             this.tableLayoutPanel2.Controls.Add(this.PReferenceRemarksContainer, 1, 7);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceFile, 1, 6);
             this.tableLayoutPanel2.Controls.Add(this.BReferenceNew, 0, 9);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel4, 1, 9);
+            this.tableLayoutPanel2.Controls.Add(this.PReferenceEditControlContainer, 1, 9);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceDate, 1, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 18);
@@ -553,21 +557,22 @@
             this.BReferenceNew.UseVisualStyleBackColor = true;
             this.BReferenceNew.Click += new System.EventHandler(this.BReferenceNew_Click);
             // 
-            // tableLayoutPanel4
+            // PReferenceEditControlContainer
             // 
-            this.tableLayoutPanel4.AutoSize = true;
-            this.tableLayoutPanel4.ColumnCount = 2;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Controls.Add(this.CBReferenceEdit, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.BReferenceEdit, 1, 0);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(125, 255);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 1;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(250, 24);
-            this.tableLayoutPanel4.TabIndex = 23;
+            this.PReferenceEditControlContainer.AutoSize = true;
+            this.PReferenceEditControlContainer.ColumnCount = 2;
+            this.PReferenceEditControlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.PReferenceEditControlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.PReferenceEditControlContainer.Controls.Add(this.CBReferenceEdit, 0, 0);
+            this.PReferenceEditControlContainer.Controls.Add(this.BReferenceEdit, 1, 0);
+            this.PReferenceEditControlContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PReferenceEditControlContainer.Enabled = false;
+            this.PReferenceEditControlContainer.Location = new System.Drawing.Point(125, 255);
+            this.PReferenceEditControlContainer.Name = "PReferenceEditControlContainer";
+            this.PReferenceEditControlContainer.RowCount = 1;
+            this.PReferenceEditControlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.PReferenceEditControlContainer.Size = new System.Drawing.Size(250, 24);
+            this.PReferenceEditControlContainer.TabIndex = 23;
             // 
             // CBReferenceEdit
             // 
@@ -583,13 +588,12 @@
             // BReferenceEdit
             // 
             this.BReferenceEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BReferenceEdit.Enabled = false;
             this.BReferenceEdit.Location = new System.Drawing.Point(126, 0);
             this.BReferenceEdit.Margin = new System.Windows.Forms.Padding(0);
             this.BReferenceEdit.Name = "BReferenceEdit";
             this.BReferenceEdit.Size = new System.Drawing.Size(124, 24);
             this.BReferenceEdit.TabIndex = 10;
-            this.BReferenceEdit.Text = "Save Changes";
+            this.BReferenceEdit.Text = "Delete Entry";
             this.BReferenceEdit.UseVisualStyleBackColor = true;
             this.BReferenceEdit.Click += new System.EventHandler(this.BReferenceEdit_Click);
             // 
@@ -616,6 +620,12 @@
             this.ChartReference.Size = new System.Drawing.Size(386, 244);
             this.ChartReference.TabIndex = 3;
             this.ChartReference.Text = "Reference Data";
+            this.ChartReference.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChartReference_KeyDown);
+            this.ChartReference.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ChartReference_KeyUp);
+            this.ChartReference.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ChartReference_MouseClick);
+            this.ChartReference.MouseLeave += new System.EventHandler(this.ChartReference_MouseLeave);
+            this.ChartReference.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChartReference_MouseMove);
+            this.ChartReference.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.ChartReference_PreviewKeyDown);
             // 
             // MainWindow
             // 
@@ -644,7 +654,7 @@
             this.tableLayoutPanel2.PerformLayout();
             this.PReferenceMetaContainer.ResumeLayout(false);
             this.PReferenceRemarksContainer.ResumeLayout(false);
-            this.tableLayoutPanel4.ResumeLayout(false);
+            this.PReferenceEditControlContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ChartReference)).EndInit();
             this.ResumeLayout(false);
 
@@ -682,19 +692,19 @@
         private System.Windows.Forms.RichTextBox EReferenceRemarks;
         private System.Windows.Forms.TextBox EReferenceFile;
         private System.Windows.Forms.Button BReferenceNew;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.TableLayoutPanel PReferenceEditControlContainer;
         private System.Windows.Forms.CheckBox CBReferenceEdit;
         private System.Windows.Forms.Button BReferenceEdit;
         private System.Windows.Forms.DateTimePicker EReferenceDate;
         private System.Windows.Forms.DataGridView TReferences;
         private System.Windows.Forms.Panel PReferenceContainer;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.DataGridViewTextBoxColumn id;
         private System.Windows.Forms.DataGridViewTextBoxColumn name;
         private System.Windows.Forms.DataGridViewTextBoxColumn date;
         private System.Windows.Forms.DataGridViewTextBoxColumn operatedBy;
         private System.Windows.Forms.DataGridViewTextBoxColumn insertedBy;
         private System.Windows.Forms.DataGridViewTextBoxColumn device;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
     }
 }
 

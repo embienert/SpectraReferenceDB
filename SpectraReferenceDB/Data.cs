@@ -5,107 +5,191 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
+using System.Data.SQLite;
 
 namespace SpectraReferenceDB
 {
     internal class Database {
-        SqliteConnection connection;
+        string connString;
 
         public Database(string dbPath) {
-            this.connection = new SqliteConnection($"Data Source={dbPath};Version=3;");
+            this.connString = $"Data Source={dbPath};Version=3;";
 
             try {
-                // Check if connection works
-                this.connection.Open();
-                this.connection.Close();
-            } catch { }
+                // Setup tables (also checks if connection works)
+                setupTables();
+            } catch (Exception ex) {
+                throw ex;
+            }
 
         }
 
-
         public void setupTables() {
-            this.connection.Open();
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
 
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"CREATE TABLE IF NOT EXISTS references (
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS spectra_references (
                                         id INTEGER PRIMARY KEY, 
                                         name TEXT NOT NULL UNIQUE,
                                         remarks TEXT DEFAULT '',
-                                        date DATE NOT NULL,
+                                        opDate DATE NOT NULL,
                                         operator TEXT NOT NULL,
                                         inserter TEXT NOT NULL,
                                         device TEXT NOT NULL,
                                         conditions TEXT DEFAULT '',
                                         filename TEXT NOT NULL UNIQUE,
                                         meta TEXT DEFAULT '');";
-            command.ExecuteNonQuery();
-
-            this.connection.Close();
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
+        public int createEntry(Reference reference) {
+            int newId = -1;
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
 
-        public void createEntry(Reference reference) {
-            this.connection.Open();
-
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"INSERT INTO references (name, remarks, date, operator, inserter, device, conditions, filename, meta)
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"INSERT INTO spectra_references (name, remarks, opDate, operator, inserter, device, conditions, filename, meta)
                                         VALUES ($name, $remarks, $date, $operator, $inserter, $device, $conditions, $filename, $meta);";
-            command.Parameters.AddWithValue("$name", reference.name);
-            command.Parameters.AddWithValue("$remarks", reference.remarks);
-            command.Parameters.AddWithValue("$date", reference.date);
-            command.Parameters.AddWithValue("$operator", reference.operatedBy);
-            command.Parameters.AddWithValue("$inserter", reference.insertedBy);
-            command.Parameters.AddWithValue("$device", reference.deviceName);
-            command.Parameters.AddWithValue("$conditions", reference.conditions);
-            command.Parameters.AddWithValue("$filename", reference.fileName);
-            command.Parameters.AddWithValue("$meta", reference.formatMeta(keyValueSeparator: "=", itemSeparator: ";"));
-            command.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("$name", reference.name);
+                    command.Parameters.AddWithValue("$remarks", reference.remarks);
+                    command.Parameters.AddWithValue("$date", reference.date);
+                    command.Parameters.AddWithValue("$operator", reference.operatedBy);
+                    command.Parameters.AddWithValue("$inserter", reference.insertedBy);
+                    command.Parameters.AddWithValue("$device", reference.deviceName);
+                    command.Parameters.AddWithValue("$conditions", reference.conditions);
+                    command.Parameters.AddWithValue("$filename", reference.fileName);
+                    command.Parameters.AddWithValue("$meta", reference.formatMeta(keyValueSeparator: "=", itemSeparator: ";"));
+                    command.ExecuteNonQuery();
+                }
 
-            this.connection.Close();
+                using (SQLiteCommand idCommand = connection.CreateCommand()) {
+                    idCommand.CommandText = @"SELECT last_insert_rowid();";
+                    object result = idCommand.ExecuteScalar();
+                    if (result != null && result != DBNull.Value) {
+                        newId = Convert.ToInt32(result);
+                    }
+                }
+            }
+
+            return newId;
+        }
+
+        public void updateEntry(Reference reference) {
+            if (reference.id == -1) {
+                return;
+            }
+
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
+
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"UPDATE spectra_references SET name = $name, remarks = $remarks, opDate = $date, operator = $operator, 
+                                        inserter = $inserter, device = $device, conditions = $conditions, filename = $filename, 
+                                        meta = $meta WHERE id = $id;";
+                    command.Parameters.AddWithValue("$name", reference.name);
+                    command.Parameters.AddWithValue("$remarks", reference.remarks);
+                    command.Parameters.AddWithValue("$date", reference.date);
+                    command.Parameters.AddWithValue("$date", reference.date);
+                    command.Parameters.AddWithValue("$operator", reference.operatedBy);
+                    command.Parameters.AddWithValue("$inserter", reference.insertedBy);
+                    command.Parameters.AddWithValue("$device", reference.deviceName);
+                    command.Parameters.AddWithValue("$conditions", reference.conditions);
+                    command.Parameters.AddWithValue("$filename", reference.fileName);
+                    command.Parameters.AddWithValue("$meta", reference.formatMeta(keyValueSeparator: "=", itemSeparator: ";"));
+                    command.Parameters.AddWithValue("$id", reference.id);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public List<Reference> allEntries() {
-            this.connection.Open();
-
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM references;";
-
-            SqliteDataReader reader = command.ExecuteReader();
             List<Reference> references = new List<Reference>();
-            while (reader.Read()) {
-                references.Add(Reference.FromSqlReader(reader));
-            }
 
-            this.connection.Close();
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
+
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"SELECT * FROM spectra_references;";
+
+                    using (SQLiteDataReader reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            references.Add(Reference.FromSqlReader(reader));
+                        }
+                    }
+                }
+            }
 
             return references;
         }
 
         public List<Reference> search(string searchText) {
-            this.connection.Open();
-
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM references WHERE 
-                                        (LOWER(name) LIKE LOWER(%$s%)) OR
-                                        (LOWER(remarks) LIKE LOWER(%$s%)) OR
-                                        (LOWER(operator) LIKE LOWER(%$s%)) OR
-                                        (LOWER(inserter) LIKE LOWER(%$s%)) OR
-                                        (LOWER(device) LIKE LOWER(%$s%)) OR
-                                        (LOWER(conditions) LIKE LOWER(%$s%)) OR
-                                        (LOWER(filename) LIKE LOWER(%$s%)) OR
-                                        (LOWER(meta) LIKE LOWER(%$s%));";
-            command.Parameters.AddWithValue("$s", searchText);
-
-            SqliteDataReader reader = command.ExecuteReader();
             List<Reference> references = new List<Reference>();
-            while (reader.Read()) {
-                references.Add(Reference.FromSqlReader(reader));
+
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
+
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"SELECT * FROM spectra_references WHERE 
+                                        (LOWER(name) LIKE %$s%) OR
+                                        (LOWER(remarks) LIKE %$s%) OR
+                                        (LOWER(operator) LIKE %$s%) OR
+                                        (LOWER(inserter) LIKE %$s%) OR
+                                        (LOWER(device) LIKE %$s%) OR
+                                        (LOWER(conditions) LIKE %$s%) OR
+                                        (LOWER(filename) LIKE %$s%) OR
+                                        (LOWER(meta) LIKE %$s%);";
+                    command.Parameters.AddWithValue("$s", searchText.ToLower());
+
+                    using (SQLiteDataReader reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            references.Add(Reference.FromSqlReader(reader));
+                        }
+                    }
+                }
             }
 
-            this.connection.Close();
-
             return references;
+        }
+
+        // TODO: Delete entry
+        public void deleteEntry(Reference reference) {
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
+
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"DELETE FROM spectra_references WHERE id = $id;";
+                    command.Parameters.AddWithValue("$id", reference.id);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        // TODO: Check for duplicate /w Reference as parameter
+        public int findDuplicate(Reference reference) {
+            int duplicate = -1;
+
+            using (SQLiteConnection connection = new SQLiteConnection(connString)) {
+                connection.Open();
+
+                using (SQLiteCommand command = connection.CreateCommand()) {
+                    command.CommandText = @"SELECT id FROM spectra_references WHERE LOWER(name) LIKE $name OR filename LIKE $filename LIMIT 1;";
+                    command.Parameters.AddWithValue("$name", reference.name);
+                    command.Parameters.AddWithValue("$filename", reference.fileName);
+
+                    Console.WriteLine(command.CommandText);
+
+                    using (SQLiteDataReader reader = command.ExecuteReader()) {
+                        if (reader.Read()) {
+                            duplicate = reader.GetInt32(0);
+                        }
+                    }
+                }
+            }
+
+            return duplicate;
         }
     }
 
@@ -209,7 +293,7 @@ namespace SpectraReferenceDB
         }
 
 
-        public static Reference FromSqlReader(SqliteDataReader reader) {
+        public static Reference FromSqlReader(SQLiteDataReader reader) {
             int id = reader.GetInt32(0);
             string name = reader.GetString(1);
             string remarks = reader.GetString(2);
