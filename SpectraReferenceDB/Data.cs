@@ -6,6 +6,7 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Data.SQLite;
+using System.Xml.Linq;
 
 namespace SpectraReferenceDB
 {
@@ -92,7 +93,6 @@ namespace SpectraReferenceDB
                     command.Parameters.AddWithValue("$name", reference.name);
                     command.Parameters.AddWithValue("$remarks", reference.remarks);
                     command.Parameters.AddWithValue("$date", reference.date);
-                    command.Parameters.AddWithValue("$date", reference.date);
                     command.Parameters.AddWithValue("$operator", reference.operatedBy);
                     command.Parameters.AddWithValue("$inserter", reference.insertedBy);
                     command.Parameters.AddWithValue("$device", reference.deviceName);
@@ -133,15 +133,15 @@ namespace SpectraReferenceDB
 
                 using (SQLiteCommand command = connection.CreateCommand()) {
                     command.CommandText = @"SELECT * FROM spectra_references WHERE 
-                                        (LOWER(name) LIKE %$s%) OR
-                                        (LOWER(remarks) LIKE %$s%) OR
-                                        (LOWER(operator) LIKE %$s%) OR
-                                        (LOWER(inserter) LIKE %$s%) OR
-                                        (LOWER(device) LIKE %$s%) OR
-                                        (LOWER(conditions) LIKE %$s%) OR
-                                        (LOWER(filename) LIKE %$s%) OR
-                                        (LOWER(meta) LIKE %$s%);";
-                    command.Parameters.AddWithValue("$s", searchText.ToLower());
+                                        (LOWER(name) LIKE $s) OR
+                                        (LOWER(remarks) LIKE $s) OR
+                                        (LOWER(operator) LIKE $s) OR
+                                        (LOWER(inserter) LIKE $s) OR
+                                        (LOWER(device) LIKE $s) OR
+                                        (LOWER(conditions) LIKE $s) OR
+                                        (LOWER(filename) LIKE $s) OR
+                                        (LOWER(meta) LIKE $s);";
+                    command.Parameters.AddWithValue("$s", "%" + searchText.ToLower() + "%");
 
                     using (SQLiteDataReader reader = command.ExecuteReader()) {
                         while (reader.Read()) {
@@ -241,10 +241,10 @@ namespace SpectraReferenceDB
                 throw new FormatException("Reference data must have at least one y-Column");
             }
 
-            Console.WriteLine("Log dictionary");
-            foreach (var logItem in referenceFile.logData) {
-                Console.WriteLine($"{logItem.Key}: \t{logItem.Value}");
-            }
+            //Console.WriteLine("Log dictionary");
+            //foreach (var logItem in referenceFile.logData) {
+            //    Console.WriteLine($"{logItem.Key}: \t{logItem.Value}");
+            //}
 
             // Define reference fields
             string referenceName = Path.GetFileNameWithoutExtension(filePath);
@@ -287,9 +287,45 @@ namespace SpectraReferenceDB
             );        
         }
 
-        public static Reference FromTxt() { 
-            // TODO: TXT file loading logic
-            return new Reference(); 
+        public static Reference FromTxt(string filePath, int numHeaders = -1) {
+            DATFile referenceFile;
+            if (numHeaders < 0) {
+                // Automatically determine header size
+                referenceFile = new DATFile(filePath);
+            } else {
+                referenceFile = new DATFile(filePath, numHeaders);
+            }
+
+            if (referenceFile.xData.Length < 1) {
+                throw new FormatException("Reference data must have an x-Column");
+            }
+            if (referenceFile.yData.Length < 1) {
+                throw new FormatException("Reference data must have at least one y-Column");
+            }
+
+            // Define reference fields
+            string referenceName = Path.GetFileNameWithoutExtension(filePath);
+
+            //Console.WriteLine(referenceFile.xData.Length);
+            //Console.WriteLine(referenceFile.yData[0].Length);
+
+            //for (int i = 0; i < referenceFile.xData.Length; i++) {
+            //    Console.WriteLine($"{referenceFile.xData[i]} \t{referenceFile.yData[0][i]}");
+            //}
+
+            return new Reference(
+                name: referenceName,
+                remarks: "",
+                date: DateTime.Now,
+                operatedBy: "",
+                insertedBy: "",
+                deviceName: "",
+                conditions: "",
+                fileName: filePath,
+                metaData: new Dictionary<string, string>(),
+                xVals: referenceFile.xData,
+                yVals: referenceFile.yData[0]
+            );
         }
 
 
@@ -354,8 +390,8 @@ namespace SpectraReferenceDB
             for (int i = 0; i < metaRows.Length; i++) {
                 string row = metaRows[i];
 
-                if (row.Contains(keyValueSeparator)) {
-                    string[] rowSplit = row.Split(keyValueSeparator);
+                string[] rowSplit = row.Split(keyValueSeparator);
+                if (rowSplit.Length == 2) {
                     string key = rowSplit[0].Trim();
                     string value = rowSplit[1].Trim();
 

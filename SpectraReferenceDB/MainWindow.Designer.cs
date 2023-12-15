@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.BoxSearch = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -141,6 +141,7 @@
             this.ESearch.Name = "ESearch";
             this.ESearch.Size = new System.Drawing.Size(258, 22);
             this.ESearch.TabIndex = 0;
+            this.ESearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ESearch_KeyDown);
             // 
             // BSearch
             // 
@@ -151,6 +152,7 @@
             this.BSearch.TabIndex = 1;
             this.BSearch.Text = "Search";
             this.BSearch.UseVisualStyleBackColor = true;
+            this.BSearch.Click += new System.EventHandler(this.BSearch_Click);
             // 
             // BoxResults
             // 
@@ -199,8 +201,8 @@
             this.TReferences.AllowUserToAddRows = false;
             this.TReferences.AllowUserToDeleteRows = false;
             this.TReferences.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
             this.TReferences.BackgroundColor = System.Drawing.SystemColors.Window;
             this.TReferences.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TReferences.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
@@ -601,6 +603,7 @@
             // 
             this.EReferenceDate.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EReferenceDate.Enabled = false;
+            this.EReferenceDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.EReferenceDate.Location = new System.Drawing.Point(125, 33);
             this.EReferenceDate.Name = "EReferenceDate";
             this.EReferenceDate.Size = new System.Drawing.Size(250, 22);
@@ -608,15 +611,15 @@
             // 
             // ChartReference
             // 
-            chartArea1.Name = "ChartArea1";
-            this.ChartReference.ChartAreas.Add(chartArea1);
+            chartArea4.Name = "ChartArea1";
+            this.ChartReference.ChartAreas.Add(chartArea4);
             this.ChartReference.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChartReference.Location = new System.Drawing.Point(395, 314);
             this.ChartReference.MinimumSize = new System.Drawing.Size(386, 237);
             this.ChartReference.Name = "ChartReference";
-            series1.ChartArea = "ChartArea1";
-            series1.Name = "Series1";
-            this.ChartReference.Series.Add(series1);
+            series4.ChartArea = "ChartArea1";
+            series4.Name = "Series1";
+            this.ChartReference.Series.Add(series4);
             this.ChartReference.Size = new System.Drawing.Size(386, 244);
             this.ChartReference.TabIndex = 3;
             this.ChartReference.Text = "Reference Data";

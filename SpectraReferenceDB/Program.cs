@@ -20,6 +20,7 @@ namespace SpectraReferenceDB
 
             //Reference file = Reference.FromSpc(@"C:\Users\marti\source\repos\SpectraReferenceDB\SpectraReferenceDB\data\Cyclohexane_230220_Cal_check.spc");
 
+            //Reference file = Reference.FromTxt(@"C:\Users\marti\source\repos\SpectraReferenceDB\SpectraReferenceDB\data\Cyclohexane_beforeCalib_max_5x5s_50mW_210518.txt");
             //Console.WriteLine(file.ToString());
         }
     }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace SpectraReferenceDB
 {
@@ -26,11 +27,15 @@ namespace SpectraReferenceDB
         int currentDataPointIndex = -1;
         int keyDownCount = 0;
 
+        private string[] spcExtentions = { ".spc" };
+        private string[] datExtentions = { ".dat", ".raman", ".txt", ".csv" };
+
         public MainWindow() {
             InitializeComponent();
 
             databasePath = Properties.Settings.Default["dbPath"].ToString();
-            while (string.IsNullOrEmpty(databasePath) || !File.Exists(Path.Combine(databasePath, "references.db"))) {
+            string db_file = Path.Combine(databasePath, "references.db");
+            while (string.IsNullOrEmpty(databasePath) || !File.Exists(db_file)) {
                 DialogResult dialogResult = MessageBox.Show("No database path has been specified. " +
                     "Please select the database directory.", "No Database", MessageBoxButtons.OKCancel);
 
@@ -44,21 +49,22 @@ namespace SpectraReferenceDB
                     this.Close();
                     return;
                 }
-            }
 
-            string db_file = Path.Combine(databasePath, "references.db");
-            if (!File.Exists(db_file)) {
-                DialogResult dialogResult = MessageBox.Show("No database found at the specified path." +
-                    "Do you want to create a new database?", "No Database", MessageBoxButtons.YesNo);
+                db_file = Path.Combine(databasePath, "references.db");
+                if (!File.Exists(db_file)) {
+                    dialogResult = MessageBox.Show("No database found at the specified path." +
+                        "Do you want to create a new database?", "No Database", MessageBoxButtons.YesNo);
 
-                if (dialogResult == DialogResult.No) {
-                    this.Close();
+                    if (dialogResult == DialogResult.Yes) {
+                        break;
+                    }
                 }
             }
 
             Properties.Settings.Default["dbPath"] = databasePath;
             Properties.Settings.Default.Save();
             referencesFilesPath = Path.Combine(databasePath, "_files");
+            Directory.CreateDirectory(referencesFilesPath);  // Create directory if it does not yet exist
 
             this.db = new Database(db_file);
             loadReferences();
@@ -71,7 +77,7 @@ namespace SpectraReferenceDB
 
 
         private void loadReferences() {
-            clearReferenceTable();
+            clearReferences();
 
             this.idReferenceMap = new Dictionary<int, Reference>();
             List<Reference> allReferences = db.allEntries();
@@ -81,7 +87,30 @@ namespace SpectraReferenceDB
                 idReferenceMap[reference.id] = reference;
             }
 
+            LNumResults.Text = $"{allReferences.Count} Results";
             Console.WriteLine($"Loaded {allReferences.Count} references");
+        }
+
+        private void clearReferences() {
+            TReferences.Rows.Clear();
+
+            idReferenceMap = new Dictionary<int, Reference>();
+        }
+
+        private void searchReferences(string searchQuery) {
+            clearReferences();
+            clearReferenceInfo();
+
+            this.idReferenceMap = new Dictionary<int, Reference>();
+            List<Reference> searchReferences = db.search(searchQuery);
+
+            foreach (Reference reference in searchReferences) {
+                addReferenceRow(reference);
+                idReferenceMap[reference.id] = reference;
+            }
+
+            LNumResults.Text = $"{searchReferences.Count} Results";
+            Console.WriteLine($"Loaded {searchReferences.Count} references");
         }
 
 
@@ -154,12 +183,25 @@ namespace SpectraReferenceDB
             // Remove grid
             chartArea.AxisX.MajorGrid.Enabled = false;
             chartArea.AxisY.MajorGrid.Enabled = false;
+            chartArea.AxisX.IntervalOffset = 0;
 
             // TODO: Set axis limits
-            //chartArea.AxisX.Minimum = x.Min();
-            //chartArea.AxisX.Maximum = x.Max();
-            chartArea.AxisY.Minimum = y.Min();
-            chartArea.AxisY.Maximum = y.Max();
+            // chartArea.AxisX.Minimum = x.Min();
+            // chartArea.AxisX.Maximum = x.Max();
+            // chartArea.AxisY.Minimum = y.Min();
+            // chartArea.AxisY.Maximum = y.Max();
+
+            if (x.Min() != 0 && x.Max() != 0) {
+                int oomUpper = (int)Math.Log10(x.Max());
+
+                chartArea.AxisX.Minimum = Math.Pow(10, oomUpper-1) * Math.Floor(x.Min() / Math.Pow(10, oomUpper - 1));
+                chartArea.AxisX.Maximum = Math.Pow(10, oomUpper-1) * Math.Ceiling(x.Max() / Math.Pow(10, oomUpper - 1));
+
+                int nrTicks = 6;
+                double interval = (Math.Pow(10, oomUpper-1) * Math.Round(((chartArea.AxisX.Maximum - chartArea.AxisX.Minimum) / (Math.Pow(10, oomUpper-1) * nrTicks)) - 0.3));
+                // chartArea.AxisX.Maximum = chartArea.AxisX.Minimum + nrTicks * interval;
+                chartArea.AxisX.Interval = interval;
+            }
 
             // Set graph type
             series.ChartType = SeriesChartType.Line;
@@ -234,8 +276,24 @@ namespace SpectraReferenceDB
 
             Reference newReference;
             try {
-                // TODO: Differentiate between different file types
-                newReference = Reference.FromSpc(filename);
+                if (spcExtentions.Contains(Path.GetExtension(filename).ToLower())) { newReference = Reference.FromSpc(filename); }
+                else if (datExtentions.Contains(Path.GetExtension(filename).ToLower())) {
+                    OpenDatDialog dialog = new OpenDatDialog();
+                    DialogResult results = dialog.ShowDialog(this);
+                    if (results == DialogResult.OK) {
+                        if (dialog.isAutomatic()) {
+                            newReference = Reference.FromTxt(filename);
+                        } else {
+                            newReference = Reference.FromTxt(filename, dialog.getValue());
+                        }
+                    } else {
+                        return;
+                    }
+                }     
+                else {
+                    showError($"Unknown file extension '{Path.GetExtension(filename)}'. Make sure the file has one of the following extensions: [.spc, .txt, .dat, .raman]");
+                    return;
+                }
             } catch (Exception ex) {
                 if (ex.Message.Length > 0) {
                     showError($"Reading file failed: {ex.Message}");
@@ -246,10 +304,13 @@ namespace SpectraReferenceDB
                 return;
             }
 
-            // TODO: Move reference file to a local directory and update filename accordingly
-            string file_target = Path.Combine(referencesFilesPath, newReference.name);
-            File.Move(newReference.fileName, file_target);
-            newReference.fileName = file_target;
+            // TODO: Xopy reference file to a local directory and update filename accordingly
+            string fileTarget = Path.Combine(referencesFilesPath, Path.GetFileName(filename));
+            if (newReference.fileName != fileTarget) {
+                if (File.Exists(fileTarget)) { File.Delete(fileTarget); }  // Delete file if it already exists in target directory
+                File.Copy(newReference.fileName, fileTarget);
+                newReference.fileName = fileTarget;
+            }
 
             // Insert values into form
             setReferenceInfo(newReference);
@@ -274,7 +335,8 @@ namespace SpectraReferenceDB
             int referenceID;
             try {
                 referenceID = Int32.Parse(TReferences.Rows[clickedRowIdx].Cells[0].Value.ToString());
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 showError("Error loading reference from table: Failed to parse id.");
                 return;
             }
@@ -292,12 +354,6 @@ namespace SpectraReferenceDB
             }
 
             setGraphDisplay(currentReference.xVals, currentReference.yVals);
-        }
-
-        private void clearReferenceTable() {
-            TReferences.Rows.Clear();
-
-            idReferenceMap = new Dictionary<int, Reference>();
         }
 
         private void addReferenceRow(Reference reference) {
@@ -427,6 +483,7 @@ namespace SpectraReferenceDB
 
         private void ChartReference_MouseMove(object sender, MouseEventArgs e) {
             if (ChartReference.Series.Count == 0) { return; }
+            ChartReference.Focus();
 
             ChartArea chartArea = ChartReference.ChartAreas[0];
             Axis xAxis = chartArea.AxisX;
@@ -464,7 +521,6 @@ namespace SpectraReferenceDB
             }
 
             if (closestPoint == null) { return; }
-            // Console.WriteLine($"{closestPoint.XValue}, {closestPoint.YValues[0]}");
 
             Series hLineSeries;
             Series vLineSeries;
@@ -493,7 +549,6 @@ namespace SpectraReferenceDB
 
             // Add text annotation with coordinates
             if (ChartReference.Annotations.Count == 0) {
-                Console.WriteLine("Added annotation");
                 annotation = new TextAnnotation();
                 ChartReference.Annotations.Add(annotation);
 
@@ -508,8 +563,6 @@ namespace SpectraReferenceDB
             annotation.Text = $"x: {closestPoint.XValue:F2}\ny: {closestPoint.YValues[0]:F2}";
 
             ChartReference.Update();
-
-            //Console.WriteLine("Drawing...");
         }
 
         private void ChartReference_MouseLeave(object sender, EventArgs e) {
@@ -572,7 +625,6 @@ namespace SpectraReferenceDB
 
             // Add text annotation with coordinates
             if (ChartReference.Annotations.Count == 0) {
-                Console.WriteLine("Added annotation");
                 annotation = new TextAnnotation();
                 ChartReference.Annotations.Add(annotation);
 
@@ -599,6 +651,18 @@ namespace SpectraReferenceDB
 
         private void ChartReference_KeyUp(object sender, KeyEventArgs e) {
             keyDownCount = 0;
+        }
+
+        private void BSearch_Click(object sender, EventArgs e) {
+            string searchValue = ESearch.Text;
+            searchReferences(searchValue);
+        }
+
+        private void ESearch_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                string searchValue = ESearch.Text;
+                searchReferences(searchValue);
+            }
         }
     }
 }

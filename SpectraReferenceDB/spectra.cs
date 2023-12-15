@@ -229,4 +229,187 @@ namespace SpectraReferenceDB {
             }
         }
     }
+
+
+    public class DATFile {
+        private char[] separators = { ',', ';', '\t', ' ' };
+        private char separator;
+
+        public readonly double[] xData;
+        public readonly double[][] yData;
+
+        public DATFile(string filePath) {
+            string fileContent = File.ReadAllText(filePath);
+
+            fileContent = fileContent.Replace("\r", "").Trim();
+
+            // Detect column separator
+            int commaCount = fileContent.Count(c => c == ',');
+            int semicolonCount = fileContent.Count(c => c == ';');
+            int tabCount = fileContent.Count(c => c == '\t');
+            int spaceCount = fileContent.Count(c => c == ' ');
+            int[] countArray = { commaCount, semicolonCount, tabCount, spaceCount };
+            int maxVal = countArray.Max();
+            int maxIndex = countArray.ToList().IndexOf(maxVal);
+
+            if (countArray.Count(val => val == maxVal) > 1) {
+                throw new FormatException("Automatic separator selection result is ambiguous.");
+            }
+
+            separator = separators[maxIndex];
+
+            string[] linesContent = fileContent.Split('\n');
+            string[][] linesSplitContent = new string[linesContent.Length][];
+
+            // Find first value row index
+            int firstContentRowIndex = -1;
+            int currentRowLength;
+            int numCols = -1;
+            for (int i = 0; i < linesContent.Length; i++) {
+                string currentRow = linesContent[i];
+
+                string[] currentRowSplit = currentRow.Trim().Split(separator);
+                linesSplitContent[i] = currentRowSplit;
+                currentRowLength = currentRowSplit.Length;
+
+                // Current row has different length than previous row or is empty -> update variables
+                if (currentRowLength != numCols || currentRowLength == 0) {
+                    firstContentRowIndex = i;
+                    numCols = currentRowLength;
+                }
+
+                try {
+                    Convert.ToDouble(currentRowSplit[0]);
+                } catch {
+                    // Current row contains non-numeric values
+                    firstContentRowIndex = i;
+                    numCols = currentRowLength;
+                }
+            }
+
+            if (firstContentRowIndex == linesContent.Length - 1) {
+                throw new FormatException("Number of columns is inconsistent.");
+            }
+
+            // TODO: Maybe combine this with the 'main' iteration where values are parsed
+            // Iterate over numeric content lines and add values
+            int firstContentRowIndexOffset = 0;
+            xData = new double[linesContent.Length - firstContentRowIndex];
+            double[][] yDataTransposed = new double[linesContent.Length - firstContentRowIndex][];
+
+            for (int i = 0; i < linesContent.Length - firstContentRowIndex; i++) {
+                try {
+                    string[] currentRowSplit = linesSplitContent[i + firstContentRowIndex];
+
+                    xData[i] = Convert.ToDouble(currentRowSplit[0]);
+                    double[] y = new double[numCols-1];
+
+                    for (int j = 1; j < numCols; j++) {
+                        y[j - 1] = Convert.ToDouble(currentRowSplit[j]);
+                    }
+
+                    yDataTransposed[i] = y;
+                } catch {
+                    // Cannot parse row -> Non-numeric value in row
+                    firstContentRowIndexOffset = i + 1;
+                }
+            }
+
+            if (firstContentRowIndexOffset != 0) {
+                double[] xOverride = new double[linesContent.Length - (firstContentRowIndex + firstContentRowIndexOffset)];
+                double[][] ysOverride = new double[linesContent.Length - (firstContentRowIndex + firstContentRowIndexOffset)][];
+
+                for (int i = firstContentRowIndexOffset; i < xData.Length; i++) {
+                    xOverride[i - firstContentRowIndexOffset] = xData[i];
+
+                    // Copy y-row
+                    double[] yOverride = new double[numCols - 1];
+                    Array.Copy(yDataTransposed[i], yOverride, numCols-1);
+                    ysOverride[i - firstContentRowIndexOffset] = yOverride;
+                }
+
+                xData = xOverride;
+                yDataTransposed = ysOverride;
+            }
+
+            // Transpose yData
+            yData = new double[yDataTransposed[0].Length][];
+            for (int colIdx = 0; colIdx < yDataTransposed[0].Length; colIdx++) {
+                double[] transposedRow = new double[yDataTransposed.Length];
+
+                for (int rowIdx = 0; rowIdx < yDataTransposed.Length; rowIdx++) {
+                    transposedRow[rowIdx] = yDataTransposed[rowIdx][colIdx];
+                }
+
+                yData[colIdx] = transposedRow;
+            }
+        }
+
+
+        public DATFile(string filePath, int numHeaders) {
+            string fileContent = File.ReadAllText(filePath);
+
+            fileContent = fileContent.Replace("\r", "").Trim();
+
+            // Detect column separator
+            int commaCount = fileContent.Count(c => c == ',');
+            int semicolonCount = fileContent.Count(c => c == ';');
+            int tabCount = fileContent.Count(c => c == '\t');
+            int spaceCount = fileContent.Count(c => c == ' ');
+            int[] countArray = { commaCount, semicolonCount, tabCount, spaceCount };
+            int maxVal = countArray.Max();
+            int maxIndex = countArray.ToList().IndexOf(maxVal);
+
+            if (countArray.Count(val => val == maxVal) > 1) {
+                throw new FormatException("Automatic separator selection result is ambiguous.");
+            }
+
+            separator = separators[maxIndex];
+
+            string[] linesContent = fileContent.Split('\n');
+
+            // TODO: Maybe combine this with the 'main' iteration where values are parsed
+            // Iterate over numeric content lines and add values
+            xData = new double[linesContent.Length - numHeaders];
+            double[][] yDataTransposed = new double[linesContent.Length - numHeaders][];
+
+            for (int i = 0; i < linesContent.Length - numHeaders; i++) {
+                int j = 0;
+                try {
+                    string[] currentRowSplit = linesContent[i + numHeaders].Split(separator);
+                    int numCols = currentRowSplit.Length;
+
+                    if (numCols < 2) {
+                        throw new FormatException($"Row {i + 1} contains less than two values");
+                    }
+
+                    xData[i] = Convert.ToDouble(currentRowSplit[0]);
+                    double[] y = new double[numCols - 1];
+
+                    for (j = 1; j < numCols; j++) {
+                        y[j - 1] = Convert.ToDouble(currentRowSplit[j]);
+                    }
+
+                    yDataTransposed[i] = y;
+                }
+                catch (Exception ex) {
+                    Console.WriteLine(ex);
+                    // Cannot parse row -> Non-numeric value in row
+                    throw new FormatException($"Cannot parse value in row {i + 1}, column {j + 1}.");
+                }
+            }
+
+            // Transpose yData
+            yData = new double[yDataTransposed[0].Length][];
+            for (int colIdx = 0; colIdx < yDataTransposed[0].Length; colIdx++) {
+                double[] transposedRow = new double[yDataTransposed.Length];
+
+                for (int rowIdx = 0; rowIdx < yDataTransposed.Length; rowIdx++) {
+                    transposedRow[rowIdx] = yDataTransposed[rowIdx][colIdx];
+                }
+
+                yData[colIdx] = transposedRow;
+            }
+        }
+    }
 }
