@@ -22,6 +22,7 @@ namespace SpectraReferenceDB
 
         private Database db;
         private string databasePath = @"C:\Users\marti\source\repos\SpectraReferenceDB\SpectraReferenceDB\data\";
+        private string referenceFilesSubdir = "_files";
         private string referencesFilesPath;
         TextAnnotation annotation;
         int currentDataPointIndex = -1;
@@ -63,7 +64,7 @@ namespace SpectraReferenceDB
 
             Properties.Settings.Default["dbPath"] = databasePath;
             Properties.Settings.Default.Save();
-            referencesFilesPath = Path.Combine(databasePath, "_files");
+            referencesFilesPath = Path.Combine(databasePath, referenceFilesSubdir);
             Directory.CreateDirectory(referencesFilesPath);  // Create directory if it does not yet exist
 
             this.db = new Database(db_file);
@@ -73,6 +74,19 @@ namespace SpectraReferenceDB
             EReferenceMeta.ReadOnly = true;
 
             TReferences_Resize(null, null);
+        }
+
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == 0x210) {
+                int wparam = m.WParam.ToInt32();
+
+                if (wparam == 0x201) {
+                    Console.WriteLine("Window Click");
+                    TReferences.ClearSelection();
+                }
+            }
+
+            base.WndProc(ref m);
         }
 
 
@@ -99,18 +113,28 @@ namespace SpectraReferenceDB
 
         private void searchReferences(string searchQuery) {
             clearReferences();
-            clearReferenceInfo();
 
-            this.idReferenceMap = new Dictionary<int, Reference>();
+            idReferenceMap = new Dictionary<int, Reference>();
             List<Reference> searchReferences = db.search(searchQuery);
 
+            if (searchReferences == null) { return; }
+
             foreach (Reference reference in searchReferences) {
+                if (reference == null) {
+                    Console.WriteLine("reference is null");
+                    continue;
+                }
                 addReferenceRow(reference);
                 idReferenceMap[reference.id] = reference;
             }
 
             LNumResults.Text = $"{searchReferences.Count} Results";
             Console.WriteLine($"Loaded {searchReferences.Count} references");
+
+            if (currentReference != null && idReferenceMap.ContainsKey(currentReference.id)) {
+                currentReference = idReferenceMap[currentReference.id];
+                setReferenceInfo(currentReference);
+            }
         }
 
 
@@ -203,6 +227,18 @@ namespace SpectraReferenceDB
                 chartArea.AxisX.Interval = interval;
             }
 
+            if (y.Min() != 0 && y.Max() != 0) {
+                int oomUpper = (int)Math.Log10(y.Max());
+
+                chartArea.AxisY.Minimum = Math.Pow(10, oomUpper - 1) * Math.Floor(y.Min() / Math.Pow(10, oomUpper - 1));
+                chartArea.AxisY.Maximum = Math.Pow(10, oomUpper - 1) * Math.Ceiling(y.Max() / Math.Pow(10, oomUpper - 1));
+
+                int nrTicks = 6;
+                double interval = (Math.Pow(10, oomUpper - 1) * Math.Round(((chartArea.AxisY.Maximum - chartArea.AxisY.Minimum) / (Math.Pow(10, oomUpper - 1) * nrTicks)) - 0.3));
+                // chartArea.AxisX.Maximum = chartArea.AxisX.Minimum + nrTicks * interval;
+                chartArea.AxisY.Interval = interval;
+            }
+
             // Set graph type
             series.ChartType = SeriesChartType.Line;
 
@@ -220,7 +256,7 @@ namespace SpectraReferenceDB
             EReferenceInserter.Text = newReference.insertedBy;
             EReferenceDevice.Text = newReference.deviceName;
             EReferenceConditions.Text = newReference.conditions;
-            EReferenceFile.Text = newReference.fileName;
+            EReferenceFile.Text = Path.Combine(referencesFilesPath, newReference.fileName);
             EReferenceRemarks.Text = newReference.remarks;
             EReferenceMeta.Text = newReference.formatMeta();
         }
@@ -304,13 +340,21 @@ namespace SpectraReferenceDB
                 return;
             }
 
-            // TODO: Xopy reference file to a local directory and update filename accordingly
+            // TODO: Copy reference file to a local directory and update filename accordingly
             string fileTarget = Path.Combine(referencesFilesPath, Path.GetFileName(filename));
             if (newReference.fileName != fileTarget) {
-                if (File.Exists(fileTarget)) { File.Delete(fileTarget); }  // Delete file if it already exists in target directory
+                if (File.Exists(fileTarget)) {
+                    // Remove read-only flag
+                    File.SetAttributes(fileTarget, File.GetAttributes(fileTarget) & ~FileAttributes.ReadOnly);
+                    File.Delete(fileTarget); 
+                }  // Delete file if it already exists in target directory
                 File.Copy(newReference.fileName, fileTarget);
+
+                string localFilePath = Path.Combine(referenceFilesSubdir, Path.GetFileName(filename));
                 newReference.fileName = fileTarget;
             }
+            File.SetAttributes(fileTarget, File.GetAttributes(fileTarget) | FileAttributes.ReadOnly);  // Set the file to read-only
+
 
             // Insert values into form
             setReferenceInfo(newReference);
@@ -445,14 +489,20 @@ namespace SpectraReferenceDB
                 }
             } else {
                 // Button is set to "Delete Entry" -> Remove current reference from database
-                db.deleteEntry(currentReference);
 
-                removeReferenceRow(currentReference);
-                idReferenceMap.Remove(currentReference.id);
+                // Confirm delete
+                DialogResult dialogResult = MessageBox.Show("Are your sure you want to delete this entry from the database? This process is not reversible.", "Confirm Delete", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes) {
+                    // Remove entry from database and clear from UI
+                    db.deleteEntry(currentReference);
+
+                    removeReferenceRow(currentReference);
+                    idReferenceMap.Remove(currentReference.id);
+
+                    // Clear info panel
+                    clearReferenceInfo();
+                }
             }
-
-            // Clear info panel
-            clearReferenceInfo();
         }
 
         private void EReferenceRemarks_ReadOnlyChanged(object sender, EventArgs e) {
@@ -584,7 +634,7 @@ namespace SpectraReferenceDB
             Series graphSeries = ChartReference.Series[0];
 
             // TODO: Introduce acceleleration
-            int accelerationFactor = (int)Math.Sqrt((double)keyDownCount);
+            int accelerationFactor = (int)Math.Ceiling(0.65 * Math.Pow((double)keyDownCount, 4.0f/7.0f));
 
             bool reverseX = graphSeries.Points[graphSeries.Points.Count() - 1].XValue < graphSeries.Points[0].XValue;
             int shift = reverseX ? -1 : 1;

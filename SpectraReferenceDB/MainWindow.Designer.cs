@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.BoxSearch = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -201,8 +201,8 @@
             this.TReferences.AllowUserToAddRows = false;
             this.TReferences.AllowUserToDeleteRows = false;
             this.TReferences.AllowUserToResizeRows = false;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.TReferences.BackgroundColor = System.Drawing.SystemColors.Window;
             this.TReferences.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TReferences.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
@@ -506,6 +506,7 @@
             // 
             this.EReferenceMeta.BackColor = System.Drawing.SystemColors.Control;
             this.EReferenceMeta.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.EReferenceMeta.DetectUrls = false;
             this.EReferenceMeta.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EReferenceMeta.Location = new System.Drawing.Point(1, 2);
             this.EReferenceMeta.Margin = new System.Windows.Forms.Padding(0);
@@ -530,6 +531,7 @@
             // 
             this.EReferenceRemarks.BackColor = System.Drawing.SystemColors.Control;
             this.EReferenceRemarks.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.EReferenceRemarks.DetectUrls = false;
             this.EReferenceRemarks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EReferenceRemarks.Location = new System.Drawing.Point(1, 2);
             this.EReferenceRemarks.Margin = new System.Windows.Forms.Padding(0);
@@ -611,15 +613,15 @@
             // 
             // ChartReference
             // 
-            chartArea4.Name = "ChartArea1";
-            this.ChartReference.ChartAreas.Add(chartArea4);
+            chartArea1.Name = "ChartArea1";
+            this.ChartReference.ChartAreas.Add(chartArea1);
             this.ChartReference.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChartReference.Location = new System.Drawing.Point(395, 314);
             this.ChartReference.MinimumSize = new System.Drawing.Size(386, 237);
             this.ChartReference.Name = "ChartReference";
-            series4.ChartArea = "ChartArea1";
-            series4.Name = "Series1";
-            this.ChartReference.Series.Add(series4);
+            series1.ChartArea = "ChartArea1";
+            series1.Name = "Series1";
+            this.ChartReference.Series.Add(series1);
             this.ChartReference.Size = new System.Drawing.Size(386, 244);
             this.ChartReference.TabIndex = 3;
             this.ChartReference.Text = "Reference Data";
