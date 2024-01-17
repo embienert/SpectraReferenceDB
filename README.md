@@ -8,7 +8,7 @@ files are supported as input.
 
 ## Installation
 Different versions of the client are available under `Releases` on the
-main GitHub page. For each release, under the `Assets` section, a ZIP
+main GitHub page. For each release, under the `Assets` section, there is a ZIP
 file containing the compiled program. The name of the file is
 `SpectraReferenceDB-[version]`. <br>
 It is recommended to always use the latest version. <br>
