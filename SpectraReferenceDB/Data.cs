@@ -390,6 +390,8 @@ namespace SpectraReferenceDB
             for (int i = 0; i < metaRows.Length; i++) {
                 string row = metaRows[i];
 
+                if (row.Trim() == String.Empty) { continue; }
+
                 string[] rowSplit = row.Split(keyValueSeparator);
                 if (rowSplit.Length == 2) {
                     string key = rowSplit[0].Trim();

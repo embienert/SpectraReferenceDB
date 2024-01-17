@@ -352,6 +352,7 @@ namespace SpectraReferenceDB
 
                 string localFilePath = Path.Combine(referenceFilesSubdir, Path.GetFileName(filename));
                 newReference.fileName = fileTarget;
+                newReference.fileName = Path.GetFileName(fileTarget);
             }
             File.SetAttributes(fileTarget, File.GetAttributes(fileTarget) | FileAttributes.ReadOnly);  // Set the file to read-only
 
@@ -392,7 +393,15 @@ namespace SpectraReferenceDB
 
             // Load x- and y-values and show the graph
             if (currentReference.xVals == null || currentReference.yVals == null) {
-                Reference originalReference = Reference.FromSpc(currentReference.fileName);
+                String targetPath = Path.Combine(this.referencesFilesPath, currentReference.fileName);
+                Reference originalReference;
+
+                if (spcExtentions.Contains(Path.GetExtension(targetPath).ToLower())) { 
+                    originalReference = Reference.FromSpc(targetPath);
+                } else {
+                    originalReference = Reference.FromTxt(targetPath);
+                }
+
                 currentReference.xVals = originalReference.xVals;
                 currentReference.yVals = originalReference.yVals;
             }
@@ -479,6 +488,10 @@ namespace SpectraReferenceDB
                     // Add data to references table
                     addReferenceRow(currentReference);
                     idReferenceMap[currentReference.id] = currentReference;
+
+                    setReferenceInfo(currentReference);
+                    currentReferenceIsEdit = true;
+                    CBReferenceEdit_CheckedChanged(null, null);
                 }
                 else {  // Entry is already in database
                     // Update database
