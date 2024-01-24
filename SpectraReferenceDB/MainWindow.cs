@@ -25,8 +25,9 @@ namespace SpectraReferenceDB
         private string referenceFilesSubdir = "_files";
         private string referencesFilesPath;
         TextAnnotation annotation;
-        int currentDataPointIndex = -1;
-        int keyDownCount = 0;
+        private int currentDataPointIndex = -1;
+        private int keyDownCount = 0;
+        private bool plotFixed = false;
 
         private string[] spcExtentions = { ".spc" };
         private string[] datExtentions = { ".dat", ".raman", ".txt", ".csv" };
@@ -69,6 +70,7 @@ namespace SpectraReferenceDB
 
             this.db = new Database(db_file);
             loadReferences();
+            clearReferenceInfo();
 
             EReferenceRemarks.ReadOnly = true;
             EReferenceMeta.ReadOnly = true;
@@ -81,7 +83,6 @@ namespace SpectraReferenceDB
                 int wparam = m.WParam.ToInt32();
 
                 if (wparam == 0x201) {
-                    Console.WriteLine("Window Click");
                     TReferences.ClearSelection();
                 }
             }
@@ -102,7 +103,6 @@ namespace SpectraReferenceDB
             }
 
             LNumResults.Text = $"{allReferences.Count} Results";
-            Console.WriteLine($"Loaded {allReferences.Count} references");
         }
 
         private void clearReferences() {
@@ -121,7 +121,6 @@ namespace SpectraReferenceDB
 
             foreach (Reference reference in searchReferences) {
                 if (reference == null) {
-                    Console.WriteLine("reference is null");
                     continue;
                 }
                 addReferenceRow(reference);
@@ -129,7 +128,6 @@ namespace SpectraReferenceDB
             }
 
             LNumResults.Text = $"{searchReferences.Count} Results";
-            Console.WriteLine($"Loaded {searchReferences.Count} references");
 
             if (currentReference != null && idReferenceMap.ContainsKey(currentReference.id)) {
                 currentReference = idReferenceMap[currentReference.id];
@@ -297,6 +295,7 @@ namespace SpectraReferenceDB
             clearGraphDisplay();
 
             this.currentReference = null;
+            TReferences.ClearSelection();
         }
 
         private void BReferenceNew_Click(object sender, EventArgs e) {
@@ -368,7 +367,7 @@ namespace SpectraReferenceDB
             this.currentReferenceIsEdit = false;
         }
 
-        private void TReferences_CellDoubleClick(object sender, DataGridViewCellEventArgs e) {
+        private void TReferences_CellClick(object sender, DataGridViewCellEventArgs e) {
             currentReferenceIsEdit = true;
 
             int clickedRowIdx = e.RowIndex;
@@ -546,6 +545,7 @@ namespace SpectraReferenceDB
 
         private void ChartReference_MouseMove(object sender, MouseEventArgs e) {
             if (ChartReference.Series.Count == 0) { return; }
+            if (plotFixed) { return; }
             ChartReference.Focus();
 
             ChartArea chartArea = ChartReference.ChartAreas[0];
@@ -629,6 +629,8 @@ namespace SpectraReferenceDB
         }
 
         private void ChartReference_MouseLeave(object sender, EventArgs e) {
+            if (plotFixed) { return; }
+
             if (ChartReference.Series.Count > 1) {
                 ChartReference.Series.RemoveAt(1);
                 ChartReference.Series.RemoveAt(1);
@@ -646,17 +648,22 @@ namespace SpectraReferenceDB
             if (ChartReference.Series.Count == 0) { return; }  // Nothing currently being displayed on the chart
             Series graphSeries = ChartReference.Series[0];
 
-            // TODO: Introduce acceleleration
+            // Acceleration
             int accelerationFactor = (int)Math.Ceiling(0.65 * Math.Pow((double)keyDownCount, 4.0f/7.0f));
 
             bool reverseX = graphSeries.Points[graphSeries.Points.Count() - 1].XValue < graphSeries.Points[0].XValue;
             int shift = reverseX ? -1 : 1;
             if (e.KeyCode == Keys.Left) {
                 currentDataPointIndex -= shift * accelerationFactor;
-            }
-            if (e.KeyCode == Keys.Right) {
+            } else if (e.KeyCode == Keys.Right) {
                 currentDataPointIndex += shift * accelerationFactor;
+            } else if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space) {
+                plotFixed = !plotFixed;
+                return;
+            } else {
+                return;
             }
+            plotFixed = false;
             currentDataPointIndex = Math.Min(Math.Max(0, currentDataPointIndex), graphSeries.Points.Count() - 1);  // Limit 
             DataPoint currentPoint = graphSeries.Points[currentDataPointIndex];
 
@@ -705,7 +712,12 @@ namespace SpectraReferenceDB
         }
 
         private void ChartReference_MouseClick(object sender, MouseEventArgs e) {
-            ChartReference.Focus();
+            if (e.Button == MouseButtons.Left) {
+                ChartReference.Focus();
+                plotFixed = !plotFixed;
+            } else {
+                plotFixed = false;
+            }
         }
 
         private void ChartReference_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
@@ -726,6 +738,57 @@ namespace SpectraReferenceDB
                 string searchValue = ESearch.Text;
                 searchReferences(searchValue);
             }
+        }
+
+        private void ChartReference_MouseEnter(object sender, EventArgs e) {
+            plotFixed = false;
+        }
+
+        private void TReferences_KeyDown(object sender, KeyEventArgs e) {
+            currentReferenceIsEdit = true;
+
+            if (e.KeyCode != Keys.Enter && e.KeyCode != Keys.Space) {
+                return;
+            }
+
+            if (TReferences.SelectedCells.Count <= 0) { return; }
+            int clickedRowIdx = TReferences.SelectedCells[0].RowIndex;
+            if (clickedRowIdx == -1) {
+                // Column header was clicked
+                return;
+            }
+
+            int referenceID;
+            try {
+                referenceID = Int32.Parse(TReferences.Rows[clickedRowIdx].Cells[0].Value.ToString());
+            }
+            catch (Exception ex) {
+                showError("Error loading reference from table: Failed to parse id.");
+                return;
+            }
+
+            currentReference = idReferenceMap[referenceID];
+
+            // Insert values into form
+            setReferenceInfo(currentReference);
+
+            // Load x- and y-values and show the graph
+            if (currentReference.xVals == null || currentReference.yVals == null) {
+                String targetPath = Path.Combine(this.referencesFilesPath, currentReference.fileName);
+                Reference originalReference;
+
+                if (spcExtentions.Contains(Path.GetExtension(targetPath).ToLower())) {
+                    originalReference = Reference.FromSpc(targetPath);
+                }
+                else {
+                    originalReference = Reference.FromTxt(targetPath);
+                }
+
+                currentReference.xVals = originalReference.xVals;
+                currentReference.yVals = originalReference.yVals;
+            }
+
+            setGraphDisplay(currentReference.xVals, currentReference.yVals);
         }
     }
 }

@@ -59,7 +59,6 @@
             this.LReferenceMeta = new System.Windows.Forms.Label();
             this.LReferenceRemarks = new System.Windows.Forms.Label();
             this.EReferenceName = new System.Windows.Forms.TextBox();
-            this.EReferenceOperator = new System.Windows.Forms.TextBox();
             this.EReferenceInserter = new System.Windows.Forms.TextBox();
             this.EReferenceDevice = new System.Windows.Forms.TextBox();
             this.EReferenceConditions = new System.Windows.Forms.TextBox();
@@ -74,6 +73,7 @@
             this.BReferenceEdit = new System.Windows.Forms.Button();
             this.EReferenceDate = new System.Windows.Forms.DateTimePicker();
             this.ChartReference = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.EReferenceOperator = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.BoxSearch.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -232,7 +232,8 @@
             this.TReferences.ShowRowErrors = false;
             this.TReferences.Size = new System.Drawing.Size(372, 451);
             this.TReferences.TabIndex = 0;
-            this.TReferences.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.TReferences_CellDoubleClick);
+            this.TReferences.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.TReferences_CellClick);
+            this.TReferences.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TReferences_KeyDown);
             this.TReferences.Resize += new System.EventHandler(this.TReferences_Resize);
             // 
             // id
@@ -319,7 +320,6 @@
             this.tableLayoutPanel2.Controls.Add(this.LReferenceMeta, 0, 8);
             this.tableLayoutPanel2.Controls.Add(this.LReferenceRemarks, 0, 7);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceName, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.EReferenceOperator, 1, 2);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceInserter, 1, 3);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceDevice, 1, 4);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceConditions, 1, 5);
@@ -329,6 +329,7 @@
             this.tableLayoutPanel2.Controls.Add(this.BReferenceNew, 0, 9);
             this.tableLayoutPanel2.Controls.Add(this.PReferenceEditControlContainer, 1, 9);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceDate, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.EReferenceOperator, 1, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 18);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -344,6 +345,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(380, 284);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
@@ -427,7 +429,7 @@
             // LReferenceMeta
             // 
             this.LReferenceMeta.AutoSize = true;
-            this.LReferenceMeta.Location = new System.Drawing.Point(7, 230);
+            this.LReferenceMeta.Location = new System.Drawing.Point(7, 229);
             this.LReferenceMeta.Margin = new System.Windows.Forms.Padding(5);
             this.LReferenceMeta.Name = "LReferenceMeta";
             this.LReferenceMeta.Size = new System.Drawing.Size(56, 13);
@@ -441,7 +443,7 @@
             this.LReferenceRemarks.Location = new System.Drawing.Point(7, 203);
             this.LReferenceRemarks.Margin = new System.Windows.Forms.Padding(5);
             this.LReferenceRemarks.Name = "LReferenceRemarks";
-            this.LReferenceRemarks.Size = new System.Drawing.Size(110, 17);
+            this.LReferenceRemarks.Size = new System.Drawing.Size(110, 16);
             this.LReferenceRemarks.TabIndex = 0;
             this.LReferenceRemarks.Text = "Remarks";
             // 
@@ -453,16 +455,6 @@
             this.EReferenceName.ReadOnly = true;
             this.EReferenceName.Size = new System.Drawing.Size(250, 22);
             this.EReferenceName.TabIndex = 1;
-            // 
-            // EReferenceOperator
-            // 
-            this.EReferenceOperator.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.EReferenceOperator.Location = new System.Drawing.Point(125, 61);
-            this.EReferenceOperator.Multiline = true;
-            this.EReferenceOperator.Name = "EReferenceOperator";
-            this.EReferenceOperator.ReadOnly = true;
-            this.EReferenceOperator.Size = new System.Drawing.Size(250, 22);
-            this.EReferenceOperator.TabIndex = 3;
             // 
             // EReferenceInserter
             // 
@@ -496,10 +488,10 @@
             this.PReferenceMetaContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PReferenceMetaContainer.Controls.Add(this.EReferenceMeta);
             this.PReferenceMetaContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PReferenceMetaContainer.Location = new System.Drawing.Point(125, 228);
+            this.PReferenceMetaContainer.Location = new System.Drawing.Point(125, 227);
             this.PReferenceMetaContainer.Name = "PReferenceMetaContainer";
             this.PReferenceMetaContainer.Padding = new System.Windows.Forms.Padding(1, 2, 1, 2);
-            this.PReferenceMetaContainer.Size = new System.Drawing.Size(250, 21);
+            this.PReferenceMetaContainer.Size = new System.Drawing.Size(250, 20);
             this.PReferenceMetaContainer.TabIndex = 9;
             // 
             // EReferenceMeta
@@ -511,7 +503,7 @@
             this.EReferenceMeta.Location = new System.Drawing.Point(1, 2);
             this.EReferenceMeta.Margin = new System.Windows.Forms.Padding(0);
             this.EReferenceMeta.Name = "EReferenceMeta";
-            this.EReferenceMeta.Size = new System.Drawing.Size(246, 15);
+            this.EReferenceMeta.Size = new System.Drawing.Size(246, 14);
             this.EReferenceMeta.TabIndex = 9;
             this.EReferenceMeta.Text = "";
             this.EReferenceMeta.ReadOnlyChanged += new System.EventHandler(this.EReferenceMeta_ReadOnlyChanged);
@@ -524,7 +516,7 @@
             this.PReferenceRemarksContainer.Location = new System.Drawing.Point(125, 201);
             this.PReferenceRemarksContainer.Name = "PReferenceRemarksContainer";
             this.PReferenceRemarksContainer.Padding = new System.Windows.Forms.Padding(1, 2, 1, 2);
-            this.PReferenceRemarksContainer.Size = new System.Drawing.Size(250, 21);
+            this.PReferenceRemarksContainer.Size = new System.Drawing.Size(250, 20);
             this.PReferenceRemarksContainer.TabIndex = 8;
             // 
             // EReferenceRemarks
@@ -536,7 +528,7 @@
             this.EReferenceRemarks.Location = new System.Drawing.Point(1, 2);
             this.EReferenceRemarks.Margin = new System.Windows.Forms.Padding(0);
             this.EReferenceRemarks.Name = "EReferenceRemarks";
-            this.EReferenceRemarks.Size = new System.Drawing.Size(246, 15);
+            this.EReferenceRemarks.Size = new System.Drawing.Size(246, 14);
             this.EReferenceRemarks.TabIndex = 8;
             this.EReferenceRemarks.Text = "";
             this.EReferenceRemarks.ReadOnlyChanged += new System.EventHandler(this.EReferenceRemarks_ReadOnlyChanged);
@@ -553,9 +545,9 @@
             // BReferenceNew
             // 
             this.BReferenceNew.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BReferenceNew.Location = new System.Drawing.Point(5, 255);
+            this.BReferenceNew.Location = new System.Drawing.Point(5, 253);
             this.BReferenceNew.Name = "BReferenceNew";
-            this.BReferenceNew.Size = new System.Drawing.Size(114, 24);
+            this.BReferenceNew.Size = new System.Drawing.Size(114, 26);
             this.BReferenceNew.TabIndex = 0;
             this.BReferenceNew.Text = "New Reference";
             this.BReferenceNew.UseVisualStyleBackColor = true;
@@ -571,11 +563,11 @@
             this.PReferenceEditControlContainer.Controls.Add(this.BReferenceEdit, 1, 0);
             this.PReferenceEditControlContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PReferenceEditControlContainer.Enabled = false;
-            this.PReferenceEditControlContainer.Location = new System.Drawing.Point(125, 255);
+            this.PReferenceEditControlContainer.Location = new System.Drawing.Point(125, 253);
             this.PReferenceEditControlContainer.Name = "PReferenceEditControlContainer";
             this.PReferenceEditControlContainer.RowCount = 1;
             this.PReferenceEditControlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.PReferenceEditControlContainer.Size = new System.Drawing.Size(250, 24);
+            this.PReferenceEditControlContainer.Size = new System.Drawing.Size(250, 26);
             this.PReferenceEditControlContainer.TabIndex = 23;
             // 
             // CBReferenceEdit
@@ -583,7 +575,7 @@
             this.CBReferenceEdit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CBReferenceEdit.Location = new System.Drawing.Point(3, 3);
             this.CBReferenceEdit.Name = "CBReferenceEdit";
-            this.CBReferenceEdit.Size = new System.Drawing.Size(120, 18);
+            this.CBReferenceEdit.Size = new System.Drawing.Size(120, 20);
             this.CBReferenceEdit.TabIndex = 0;
             this.CBReferenceEdit.Text = "Enable Editing";
             this.CBReferenceEdit.UseVisualStyleBackColor = true;
@@ -595,7 +587,7 @@
             this.BReferenceEdit.Location = new System.Drawing.Point(126, 0);
             this.BReferenceEdit.Margin = new System.Windows.Forms.Padding(0);
             this.BReferenceEdit.Name = "BReferenceEdit";
-            this.BReferenceEdit.Size = new System.Drawing.Size(124, 24);
+            this.BReferenceEdit.Size = new System.Drawing.Size(124, 26);
             this.BReferenceEdit.TabIndex = 10;
             this.BReferenceEdit.Text = "Delete Entry";
             this.BReferenceEdit.UseVisualStyleBackColor = true;
@@ -628,9 +620,19 @@
             this.ChartReference.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChartReference_KeyDown);
             this.ChartReference.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ChartReference_KeyUp);
             this.ChartReference.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ChartReference_MouseClick);
+            this.ChartReference.MouseEnter += new System.EventHandler(this.ChartReference_MouseEnter);
             this.ChartReference.MouseLeave += new System.EventHandler(this.ChartReference_MouseLeave);
             this.ChartReference.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChartReference_MouseMove);
             this.ChartReference.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.ChartReference_PreviewKeyDown);
+            // 
+            // EReferenceOperator
+            // 
+            this.EReferenceOperator.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.EReferenceOperator.Location = new System.Drawing.Point(125, 61);
+            this.EReferenceOperator.Name = "EReferenceOperator";
+            this.EReferenceOperator.ReadOnly = true;
+            this.EReferenceOperator.Size = new System.Drawing.Size(250, 22);
+            this.EReferenceOperator.TabIndex = 25;
             // 
             // MainWindow
             // 
@@ -644,7 +646,7 @@
             this.HelpButton = true;
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainWindow";
-            this.Text = "Spectra Reference Database v1.0";
+            this.Text = "Spectra Reference Database v1.1.0";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.BoxSearch.ResumeLayout(false);
@@ -688,7 +690,6 @@
         private System.Windows.Forms.Label LReferenceMeta;
         private System.Windows.Forms.Label LReferenceRemarks;
         private System.Windows.Forms.TextBox EReferenceName;
-        private System.Windows.Forms.TextBox EReferenceOperator;
         private System.Windows.Forms.TextBox EReferenceInserter;
         private System.Windows.Forms.TextBox EReferenceDevice;
         private System.Windows.Forms.TextBox EReferenceConditions;
@@ -711,6 +712,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn operatedBy;
         private System.Windows.Forms.DataGridViewTextBoxColumn insertedBy;
         private System.Windows.Forms.DataGridViewTextBoxColumn device;
+        private System.Windows.Forms.TextBox EReferenceOperator;
     }
 }
 
