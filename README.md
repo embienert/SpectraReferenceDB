@@ -43,18 +43,22 @@ Currently, the program only supports `*.SPC`, as well as `*.DAT, *.TXT, *.RAMAN,
 Depending on the file extension, the client employs different parsers. Reading `*.SPC` files is fully automated.
 For all other file types you can either choose to let the number of header lines be automatically determined (recommended),
 or manually define a number of header lines (including the column headers). Manually choosing is advisable if
-the automatic detection fails to properly parse the data. Should the be multiple y-Columns in the selected file,
+the automatic detection fails to properly parse the data. Should there be multiple y-Columns in the selected file,
 only the first will be considered. <br>
 Once the client has finished reading the file, the data is displayed in the corresponding fields of the `Reference Data` panel,
 and a basic plot of the data is shown in the bottom right. Before using the `Save` button to store the reference
 in the database, it is recommended to fill out as many of the editable fields as possible. <br>
-To display more information about an existing entry from the table, you can simply double-click on the corresponding row to open it in the
+To display more information about an existing entry from the table, you can simply click on the corresponding row to open it in the
 `Reference Data` panel on the right. When opening a reference in this manner, editing is disabled by default and the `Save/Save Changes` button
 is replaced with a `Delete Entry` button. Using the `Delete Entry` will ask you for confirmation and then delete the entry **irreversibly**. <br>
 The editing mode can be enabled by checking the `Enable Editing` checkbox at the bottom of the panel. This lifts
 the writing protection of the data fields. Any changes can be committed directly to the database using the
 `Save Changes` button. This process is also **irreversible**; Other than through manual backups, the database cannot
-be returned to a previous state.
+be returned to a previous state. <br>
+In the `plot area` in the lower right corner, the current x- and y-coordinates are displayed when hovering
+the mouse over the plot. You can also move from point to point along the x-axis by using the `Right Arrow` and `Left Arrow` keys on the keyboard.
+To be able to move the mouse freely, without changing the currently displayed coordinates, you can fix the plot using the
+`Left Mouse Button`, `Enter Key` or `Space Key`. The plot will remain fixed until the mouse re-enters the graph area, or either of the buttons are pressed again.
 
 ## Moving/Copying the database
 The database itself can easily be copied or moved to another location. To do this, you need to copy **BOTH** the `references.db` file and
@@ -62,4 +66,4 @@ the `_files` directory. The `_files` directory contains a copy of all files adde
 to show details and data plot within the client. This directory and all files within **must NOT** be renamed or deleted or the 
 database client will break upon requesting details on the corresponding references. When moving or copying the database, make sure
 this directory remains in the same location as the database. <br>
-NOTE: When moving the database, it will likely be required to re-enter its location when starting the client for the first time afterwards.
+**NOTE**: When moving the database, you will likely have to re-enter its location when starting the client for the first time afterwards.

@@ -279,7 +279,7 @@ namespace SpectraReferenceDB {
                 }
 
                 try {
-                    Convert.ToDouble(currentRowSplit[0]);
+                    Convert.ToDouble(currentRowSplit[0], System.Globalization.CultureInfo.InvariantCulture);
                 } catch {
                     // Current row contains non-numeric values
                     firstContentRowIndex = i;
@@ -301,11 +301,11 @@ namespace SpectraReferenceDB {
                 try {
                     string[] currentRowSplit = linesSplitContent[i + firstContentRowIndex];
 
-                    xData[i] = Convert.ToDouble(currentRowSplit[0]);
+                    xData[i] = Convert.ToDouble(currentRowSplit[0], System.Globalization.CultureInfo.InvariantCulture);
                     double[] y = new double[numCols-1];
 
                     for (int j = 1; j < numCols; j++) {
-                        y[j - 1] = Convert.ToDouble(currentRowSplit[j]);
+                        y[j - 1] = Convert.ToDouble(currentRowSplit[j], System.Globalization.CultureInfo.InvariantCulture);
                     }
 
                     yDataTransposed[i] = y;
@@ -383,11 +383,11 @@ namespace SpectraReferenceDB {
                         throw new FormatException($"Row {i + 1} contains less than two values");
                     }
 
-                    xData[i] = Convert.ToDouble(currentRowSplit[0]);
+                    xData[i] = Convert.ToDouble(currentRowSplit[0], System.Globalization.CultureInfo.InvariantCulture);
                     double[] y = new double[numCols - 1];
 
                     for (j = 1; j < numCols; j++) {
-                        y[j - 1] = Convert.ToDouble(currentRowSplit[j]);
+                        y[j - 1] = Convert.ToDouble(currentRowSplit[j], System.Globalization.CultureInfo.InvariantCulture);
                     }
 
                     yDataTransposed[i] = y;

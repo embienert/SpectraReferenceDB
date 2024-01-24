@@ -498,6 +498,9 @@ namespace SpectraReferenceDB
 
                     // Update data in reference table
                     updateReferenceRow(currentReference);
+
+                    // Reset `enable changes` checkbox
+                    CBReferenceEdit.Checked = false;
                 }
             } else {
                 // Button is set to "Delete Entry" -> Remove current reference from database
@@ -789,6 +792,34 @@ namespace SpectraReferenceDB
             }
 
             setGraphDisplay(currentReference.xVals, currentReference.yVals);
+        }
+
+        private void EReferenceRemarks_MouseEnter(object sender, EventArgs e) {
+            EReferenceRemarks.Focus();
+            EReferenceRemarks.SelectionStart = 0;
+            EReferenceRemarks.SelectionLength = 0;
+        }
+
+        private void EReferenceRemarks_MouseLeave(object sender, EventArgs e) {
+            this.Focus();
+        }
+
+        private void EReferenceMeta_MouseEnter(object sender, EventArgs e) {
+            EReferenceMeta.Focus();
+            EReferenceMeta.SelectionStart = 0;
+            EReferenceMeta.SelectionLength = 0;
+        }
+
+        private void EReferenceMeta_MouseLeave(object sender, EventArgs e) {
+            this.Focus();
+        }
+
+        private void TReferences_MouseEnter(object sender, EventArgs e) {
+            TReferences.Focus();
+        }
+
+        private void TReferences_MouseLeave(object sender, EventArgs e) {
+            this.Focus();
         }
     }
 }

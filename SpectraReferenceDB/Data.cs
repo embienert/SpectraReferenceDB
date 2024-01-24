@@ -370,7 +370,7 @@ namespace SpectraReferenceDB
         }
 
 
-        public String formatMeta(string keyValueSeparator = " = ", string itemSeparator = "\n") {
+        public String formatMeta(string keyValueSeparator = " = ", string itemSeparator = "\r\n") {
             StringBuilder sb = new StringBuilder();
 
             foreach (var item in this.metaData) {

@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.BoxSearch = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -62,18 +62,16 @@
             this.EReferenceInserter = new System.Windows.Forms.TextBox();
             this.EReferenceDevice = new System.Windows.Forms.TextBox();
             this.EReferenceConditions = new System.Windows.Forms.TextBox();
-            this.PReferenceMetaContainer = new System.Windows.Forms.Panel();
-            this.EReferenceMeta = new System.Windows.Forms.RichTextBox();
-            this.PReferenceRemarksContainer = new System.Windows.Forms.Panel();
-            this.EReferenceRemarks = new System.Windows.Forms.RichTextBox();
             this.EReferenceFile = new System.Windows.Forms.TextBox();
             this.BReferenceNew = new System.Windows.Forms.Button();
             this.PReferenceEditControlContainer = new System.Windows.Forms.TableLayoutPanel();
             this.CBReferenceEdit = new System.Windows.Forms.CheckBox();
             this.BReferenceEdit = new System.Windows.Forms.Button();
             this.EReferenceDate = new System.Windows.Forms.DateTimePicker();
-            this.ChartReference = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.EReferenceOperator = new System.Windows.Forms.TextBox();
+            this.ChartReference = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.EReferenceRemarks = new System.Windows.Forms.TextBox();
+            this.EReferenceMeta = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.BoxSearch.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -83,8 +81,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.TReferences)).BeginInit();
             this.BoxData.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            this.PReferenceMetaContainer.SuspendLayout();
-            this.PReferenceRemarksContainer.SuspendLayout();
             this.PReferenceEditControlContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChartReference)).BeginInit();
             this.SuspendLayout();
@@ -201,8 +197,8 @@
             this.TReferences.AllowUserToAddRows = false;
             this.TReferences.AllowUserToDeleteRows = false;
             this.TReferences.AllowUserToResizeRows = false;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.TReferences.BackgroundColor = System.Drawing.SystemColors.Window;
             this.TReferences.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TReferences.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
@@ -234,6 +230,8 @@
             this.TReferences.TabIndex = 0;
             this.TReferences.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.TReferences_CellClick);
             this.TReferences.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TReferences_KeyDown);
+            this.TReferences.MouseEnter += new System.EventHandler(this.TReferences_MouseEnter);
+            this.TReferences.MouseLeave += new System.EventHandler(this.TReferences_MouseLeave);
             this.TReferences.Resize += new System.EventHandler(this.TReferences_Resize);
             // 
             // id
@@ -323,13 +321,13 @@
             this.tableLayoutPanel2.Controls.Add(this.EReferenceInserter, 1, 3);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceDevice, 1, 4);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceConditions, 1, 5);
-            this.tableLayoutPanel2.Controls.Add(this.PReferenceMetaContainer, 1, 8);
-            this.tableLayoutPanel2.Controls.Add(this.PReferenceRemarksContainer, 1, 7);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceFile, 1, 6);
             this.tableLayoutPanel2.Controls.Add(this.BReferenceNew, 0, 9);
             this.tableLayoutPanel2.Controls.Add(this.PReferenceEditControlContainer, 1, 9);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceDate, 1, 1);
             this.tableLayoutPanel2.Controls.Add(this.EReferenceOperator, 1, 2);
+            this.tableLayoutPanel2.Controls.Add(this.EReferenceRemarks, 1, 7);
+            this.tableLayoutPanel2.Controls.Add(this.EReferenceMeta, 1, 8);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 18);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -483,56 +481,6 @@
             this.EReferenceConditions.Size = new System.Drawing.Size(250, 22);
             this.EReferenceConditions.TabIndex = 6;
             // 
-            // PReferenceMetaContainer
-            // 
-            this.PReferenceMetaContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.PReferenceMetaContainer.Controls.Add(this.EReferenceMeta);
-            this.PReferenceMetaContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PReferenceMetaContainer.Location = new System.Drawing.Point(125, 227);
-            this.PReferenceMetaContainer.Name = "PReferenceMetaContainer";
-            this.PReferenceMetaContainer.Padding = new System.Windows.Forms.Padding(1, 2, 1, 2);
-            this.PReferenceMetaContainer.Size = new System.Drawing.Size(250, 20);
-            this.PReferenceMetaContainer.TabIndex = 9;
-            // 
-            // EReferenceMeta
-            // 
-            this.EReferenceMeta.BackColor = System.Drawing.SystemColors.Control;
-            this.EReferenceMeta.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.EReferenceMeta.DetectUrls = false;
-            this.EReferenceMeta.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.EReferenceMeta.Location = new System.Drawing.Point(1, 2);
-            this.EReferenceMeta.Margin = new System.Windows.Forms.Padding(0);
-            this.EReferenceMeta.Name = "EReferenceMeta";
-            this.EReferenceMeta.Size = new System.Drawing.Size(246, 14);
-            this.EReferenceMeta.TabIndex = 9;
-            this.EReferenceMeta.Text = "";
-            this.EReferenceMeta.ReadOnlyChanged += new System.EventHandler(this.EReferenceMeta_ReadOnlyChanged);
-            // 
-            // PReferenceRemarksContainer
-            // 
-            this.PReferenceRemarksContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.PReferenceRemarksContainer.Controls.Add(this.EReferenceRemarks);
-            this.PReferenceRemarksContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PReferenceRemarksContainer.Location = new System.Drawing.Point(125, 201);
-            this.PReferenceRemarksContainer.Name = "PReferenceRemarksContainer";
-            this.PReferenceRemarksContainer.Padding = new System.Windows.Forms.Padding(1, 2, 1, 2);
-            this.PReferenceRemarksContainer.Size = new System.Drawing.Size(250, 20);
-            this.PReferenceRemarksContainer.TabIndex = 8;
-            // 
-            // EReferenceRemarks
-            // 
-            this.EReferenceRemarks.BackColor = System.Drawing.SystemColors.Control;
-            this.EReferenceRemarks.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.EReferenceRemarks.DetectUrls = false;
-            this.EReferenceRemarks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.EReferenceRemarks.Location = new System.Drawing.Point(1, 2);
-            this.EReferenceRemarks.Margin = new System.Windows.Forms.Padding(0);
-            this.EReferenceRemarks.Name = "EReferenceRemarks";
-            this.EReferenceRemarks.Size = new System.Drawing.Size(246, 14);
-            this.EReferenceRemarks.TabIndex = 8;
-            this.EReferenceRemarks.Text = "";
-            this.EReferenceRemarks.ReadOnlyChanged += new System.EventHandler(this.EReferenceRemarks_ReadOnlyChanged);
-            // 
             // EReferenceFile
             // 
             this.EReferenceFile.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -603,17 +551,26 @@
             this.EReferenceDate.Size = new System.Drawing.Size(250, 22);
             this.EReferenceDate.TabIndex = 24;
             // 
+            // EReferenceOperator
+            // 
+            this.EReferenceOperator.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.EReferenceOperator.Location = new System.Drawing.Point(125, 61);
+            this.EReferenceOperator.Name = "EReferenceOperator";
+            this.EReferenceOperator.ReadOnly = true;
+            this.EReferenceOperator.Size = new System.Drawing.Size(250, 22);
+            this.EReferenceOperator.TabIndex = 25;
+            // 
             // ChartReference
             // 
-            chartArea2.Name = "ChartArea1";
-            this.ChartReference.ChartAreas.Add(chartArea2);
+            chartArea1.Name = "ChartArea1";
+            this.ChartReference.ChartAreas.Add(chartArea1);
             this.ChartReference.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChartReference.Location = new System.Drawing.Point(395, 314);
             this.ChartReference.MinimumSize = new System.Drawing.Size(386, 237);
             this.ChartReference.Name = "ChartReference";
-            series2.ChartArea = "ChartArea1";
-            series2.Name = "Series1";
-            this.ChartReference.Series.Add(series2);
+            series1.ChartArea = "ChartArea1";
+            series1.Name = "Series1";
+            this.ChartReference.Series.Add(series1);
             this.ChartReference.Size = new System.Drawing.Size(386, 244);
             this.ChartReference.TabIndex = 3;
             this.ChartReference.Text = "Reference Data";
@@ -625,14 +582,31 @@
             this.ChartReference.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChartReference_MouseMove);
             this.ChartReference.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.ChartReference_PreviewKeyDown);
             // 
-            // EReferenceOperator
+            // EReferenceRemarks
             // 
-            this.EReferenceOperator.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.EReferenceOperator.Location = new System.Drawing.Point(125, 61);
-            this.EReferenceOperator.Name = "EReferenceOperator";
-            this.EReferenceOperator.ReadOnly = true;
-            this.EReferenceOperator.Size = new System.Drawing.Size(250, 22);
-            this.EReferenceOperator.TabIndex = 25;
+            this.EReferenceRemarks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.EReferenceRemarks.Location = new System.Drawing.Point(125, 201);
+            this.EReferenceRemarks.Multiline = true;
+            this.EReferenceRemarks.Name = "EReferenceRemarks";
+            this.EReferenceRemarks.ReadOnly = true;
+            this.EReferenceRemarks.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.EReferenceRemarks.Size = new System.Drawing.Size(250, 20);
+            this.EReferenceRemarks.TabIndex = 8;
+            this.EReferenceRemarks.MouseEnter += new System.EventHandler(this.EReferenceRemarks_MouseEnter);
+            this.EReferenceRemarks.MouseLeave += new System.EventHandler(this.EReferenceRemarks_MouseLeave);
+            // 
+            // EReferenceMeta
+            // 
+            this.EReferenceMeta.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.EReferenceMeta.Location = new System.Drawing.Point(125, 227);
+            this.EReferenceMeta.Multiline = true;
+            this.EReferenceMeta.Name = "EReferenceMeta";
+            this.EReferenceMeta.ReadOnly = true;
+            this.EReferenceMeta.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.EReferenceMeta.Size = new System.Drawing.Size(250, 20);
+            this.EReferenceMeta.TabIndex = 9;
+            this.EReferenceMeta.MouseEnter += new System.EventHandler(this.EReferenceMeta_MouseEnter);
+            this.EReferenceMeta.MouseLeave += new System.EventHandler(this.EReferenceMeta_MouseLeave);
             // 
             // MainWindow
             // 
@@ -660,8 +634,6 @@
             this.BoxData.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            this.PReferenceMetaContainer.ResumeLayout(false);
-            this.PReferenceRemarksContainer.ResumeLayout(false);
             this.PReferenceEditControlContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ChartReference)).EndInit();
             this.ResumeLayout(false);
@@ -693,10 +665,6 @@
         private System.Windows.Forms.TextBox EReferenceInserter;
         private System.Windows.Forms.TextBox EReferenceDevice;
         private System.Windows.Forms.TextBox EReferenceConditions;
-        private System.Windows.Forms.Panel PReferenceMetaContainer;
-        private System.Windows.Forms.RichTextBox EReferenceMeta;
-        private System.Windows.Forms.Panel PReferenceRemarksContainer;
-        private System.Windows.Forms.RichTextBox EReferenceRemarks;
         private System.Windows.Forms.TextBox EReferenceFile;
         private System.Windows.Forms.Button BReferenceNew;
         private System.Windows.Forms.TableLayoutPanel PReferenceEditControlContainer;
@@ -713,6 +681,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn insertedBy;
         private System.Windows.Forms.DataGridViewTextBoxColumn device;
         private System.Windows.Forms.TextBox EReferenceOperator;
+        private System.Windows.Forms.TextBox EReferenceRemarks;
+        private System.Windows.Forms.TextBox EReferenceMeta;
     }
 }
 
