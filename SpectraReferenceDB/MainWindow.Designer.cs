@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.BoxSearch = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -197,8 +197,8 @@
             this.TReferences.AllowUserToAddRows = false;
             this.TReferences.AllowUserToDeleteRows = false;
             this.TReferences.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.TReferences.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
             this.TReferences.BackgroundColor = System.Drawing.SystemColors.Window;
             this.TReferences.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TReferences.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
@@ -562,15 +562,15 @@
             // 
             // ChartReference
             // 
-            chartArea1.Name = "ChartArea1";
-            this.ChartReference.ChartAreas.Add(chartArea1);
+            chartArea2.Name = "ChartArea1";
+            this.ChartReference.ChartAreas.Add(chartArea2);
             this.ChartReference.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChartReference.Location = new System.Drawing.Point(395, 314);
             this.ChartReference.MinimumSize = new System.Drawing.Size(386, 237);
             this.ChartReference.Name = "ChartReference";
-            series1.ChartArea = "ChartArea1";
-            series1.Name = "Series1";
-            this.ChartReference.Series.Add(series1);
+            series2.ChartArea = "ChartArea1";
+            series2.Name = "Series1";
+            this.ChartReference.Series.Add(series2);
             this.ChartReference.Size = new System.Drawing.Size(386, 244);
             this.ChartReference.TabIndex = 3;
             this.ChartReference.Text = "Reference Data";
@@ -620,7 +620,7 @@
             this.HelpButton = true;
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainWindow";
-            this.Text = "Spectra Reference Database v1.1.0";
+            this.Text = "Spectra Reference Database v1.1.1";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.BoxSearch.ResumeLayout(false);
